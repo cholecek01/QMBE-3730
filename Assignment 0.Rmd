@@ -1,0 +1,40 @@
+---
+title: "Assignment 0 Advanced BA"
+author: "Cam Holecek"
+date: "2025-02-03"
+output: html_document
+---
+
+```{r}
+install.packages("readxl")
+install.packages("dplyr") 
+
+library(readxl)
+library(dplyr)
+
+```
+
+```{r}
+summary(`netflix_titles.(1)`)
+```
+
+Length of each variable is 8807 and there is 12 columns
+
+```{r}
+str(`netflix_titles.(1)`)
+
+# Get summary statistics
+summary(`netflix_titles.(1)`)
+
+# Count missing values
+colSums(is.na(`netflix_titles.(1)`))
+
+```
+
+There seems to be 0 missing values in each variable or column. The dataset includes categorical variables such as type (Movie or TV Show), title, director, cast, country, date_added, rating, and listed_in (genres). It also includes numerical data like release year, ranging from 1925 to 2021.
+
+If you want to predict a numerical variable, such as estimating the popularity of a show based on features like release year, country, or genre.
+Example: Predicting movie duration based on release_year, rating, or listed_in.
+Suitable if: You have a clear dependent variable 
+
+
