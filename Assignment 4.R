@@ -1,0 +1,187 @@
+---
+  title: "Wages Assignment"
+author: "Cam Holecek"
+date: "2025-03-31"
+output:
+  pdf_document: default
+html_document: default
+---
+  
+  ```{r}
+setwd("C:/Users/chole/OneDrive/Advanced BA/QMBE-3730/QMBE-3730")
+```
+
+
+Question 1
+a.
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(readxl)
+
+# Load the dataset
+wages <- read_excel("wages.xlsx")  # Ensure the correct file path
+
+# Scatter plot of Wage vs. Age
+ggplot(wages, aes(x = Age, y = Wage)) +
+  geom_point(color = "blue") +
+  labs(title = "Scatter Plot of Wage vs. Age",
+       x = "Age", y = "Wage") +
+  theme_minimal()
+
+# Fit linear model
+linear_model <- lm(Wage ~ Age, data = wages)
+
+# Fit quadratic model
+wages$Age2 <- wages$Age^2
+quadratic_model <- lm(Wage ~ Age + Age2, data = wages)
+
+# Generate predictions
+age_seq <- seq(min(wages$Age), max(wages$Age), length.out = 100)
+predictions <- data.frame(
+  Age = age_seq,
+  Age2 = age_seq^2,
+  Linear_Pred = predict(linear_model, newdata = data.frame(Age = age_seq)),
+  Quadratic_Pred = predict(quadratic_model, newdata = data.frame(Age = age_seq, Age2 = age_seq^2))
+)
+
+# Plot scatter with regression lines
+ggplot(wages, aes(x = Age, y = Wage)) +
+  geom_point(color = "blue") +
+  geom_line(data = predictions, aes(x = Age, y = Linear_Pred), color = "red", linewidth = 1, linetype = "solid") +
+  geom_line(data = predictions, aes(x = Age, y = Quadratic_Pred), color = "green", linewidth = 1, linetype = "dashed") +
+  labs(title = "Linear vs. Quadratic Fit for Wage vs. Age",
+       x = "Age", y = "Wage") +
+  theme_minimal()
+
+# Display model summaries
+summary(linear_model)
+summary(quadratic_model)
+```
+
+b.
+
+```{r}
+# Fit the multiple regression model
+wage_model <- lm(Wage ~ Age + Educ, data = wages)
+
+# Display the summary of the regression model
+summary(wage_model)
+```
+c.
+```{r}
+# Create a quadratic term for Age
+wages$Age2 <- wages$Age^2
+
+# Fit the multiple regression model with quadratic Age
+wage_model_quad <- lm(Wage ~ Age + Age2 + Educ, data = wages)
+
+# Display the summary of the quadratic regression model
+summary(wage_model_quad)
+
+
+#Compare Residuals and Goodness of Fit
+
+
+
+# Fit the standard linear model from part b (without quadratic Age)
+wage_model_linear <- lm(Wage ~ Age + Educ, data = wages)
+
+# Compare R-squared values
+cat("Linear Model R-squared:", summary(wage_model_linear)$r.squared, "\n")
+cat("Quadratic Model R-squared:", summary(wage_model_quad)$r.squared, "\n")
+
+# Plot residuals for comparison
+par(mfrow = c(1, 2))  # Set up side-by-side plots
+
+# Residual plot for linear model
+plot(fitted(wage_model_linear), resid(wage_model_linear),
+     main = "Linear Model Residuals", xlab = "Fitted Values", ylab = "Residuals", col = "blue")
+abline(h = 0, col = "red", lty = 2)
+
+# Residual plot for quadratic model
+plot(fitted(wage_model_quad), resid(wage_model_quad),
+     main = "Quadratic Model Residuals", xlab = "Fitted Values", ylab = "Residuals", col = "green")
+abline(h = 0, col = "red", lty = 2)
+
+# Reset plot layout
+par(mfrow = c(1, 1))
+```
+d.
+
+```{r}
+# Define new data points for prediction
+new_data <- data.frame(Age = c(30, 50, 70),
+                       Age2 = c(30^2, 50^2, 70^2),  # Include quadratic term
+                       Educ = rep(16, 3))  # 16 years of education
+
+# Predict wages using the quadratic model
+predicted_wages <- predict(wage_model_quad, newdata = new_data)
+
+# Display predictions
+predicted_wages
+
+
+```
+
+
+e.
+
+```{r}
+# Extract coefficients from the quadratic model
+beta_1 <- coef(quadratic_model)["Age"]
+beta_2 <- coef(quadratic_model)["I(Age^2)"]
+
+# Compute the age at which wage is maximized
+optimal_age <- -beta_1 / (2 * beta_2)
+
+# Print the result
+optimal_age
+```
+2.
+
+a.
+
+
+
+```{r}
+
+
+# Use the correct column names in the plots
+p1 <- ggplot(AnnArbor, aes(x = Beds, y = Rent)) +  # Replace with the actual name
+  geom_point(color = "royalblue") +
+  labs(title = "Rent vs Beds") +
+  theme_minimal()
+
+p2 <- ggplot(AnnArbor, aes(x = Baths, y = Rent)) +  # Replace with the actual name
+  geom_point(color = "seagreen") +
+  labs(title = "Rent vs Baths") +
+  theme_minimal()
+
+p3 <- ggplot(AnnArbor, aes(x = Sqft, y = Rent)) +  # Replace with the actual name
+  geom_point(color = "darkorange") +
+  labs(title = "Rent vs Sqft") +
+  theme_minimal()
+
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+b.
+
+```{r}
+# Apply log-transformation on square footage
+AnnArbor$LogSqft <- log(AnnArbor$Sqft)
+
+# Fit the multiple regression model
+model <- lm(Rent ~ Beds + Baths + LogSqft, data = AnnArbor)
+
+# Display the model summary
+summary(model)
+
+# Predict rent for a 1,600 sqft rental with 3 beds and 2 baths
+new_data <- data.frame(Beds = 3, Baths = 2, LogSqft = log(1600))
+predicted_rent <- predict(model, new_data)
+
+# Display the predicted rent
+print(paste("Predicted Rent: $", round(predicted_rent, 2)))
+```
+
